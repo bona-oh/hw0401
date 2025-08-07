@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>업그레이드 구구단 연습</title>
+<style>
+  body {
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f8ff;
+  }
+  .container {
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+    background-color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 400px;
+  }
+  h1 {
+    color: #333;
+    margin-top: 0;
+  }
+  .controls {
+    margin-bottom: 20px;
+  }
+  .controls label {
+    margin-right: 10px;
+    font-size: 1.1em;
+  }
+  select {
+    padding: 8px;
+    font-size: 1em;
+    border-radius: 5px;
+  }
+  #problem {
+    font-size: 2.5em;
+    font-weight: bold;
+    margin: 25px 0;
+    color: #0056b3;
+  }
+  input[type="number"] {
+    width: 120px;
+    padding: 10px;
+    font-size: 1.2em;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  button {
+    padding: 10px 20px;
+    font-size: 1.2em;
+    border: none;
+    border-radius: 5px;
+    background-color: #007BFF;
+    color: white;
+    cursor: pointer;
+    margin-left: 10px;
+    transition: background-color 0.3s;
+  }
+  button:hover {
+    background-color: #0056b3;
+  }
+  #result {
+    margin-top: 20px;
+    font-size: 1.2em;
+    font-weight: bold;
+    height: 25px;
+  }
+  #score {
+    margin-top: 25px;
+    font-size: 1.1em;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>구구단 연습</h1>
+
+  <div class="controls">
+    <label for="dan-select">연습할 단 선택:</label>
+    <select id="dan-select">
+      <option value="random">전체 랜덤</option>
+      <option value="2">2단</option>
+      <option value="3">3단</option>
+      <option value="4">4단</option>
+      <option value="5">5단</option>
+      <option value="6">6단</option>
+      <option value="7">7단</option>
+      <option value="8">8단</option>
+      <option value="9">9단</option>
+    </select>
+  </div>
+
+  <div id="problem"></div>
+  <form id="form">
+    <input type="number" id="answer" required autocomplete="off">
+    <button type="submit">확인</button>
+  </form>
+  <div id="result"></div>
+  <div id="score">
+    도전 횟수: <span id="attempts">0</span> | 맞춘 개수: <span id="correct">0</span>
+  </div>
+</div>
+
+<script>
+  // HTML 요소 가져오기
+  const problemElement = document.getElementById('problem');
+  const formElement = document.getElementById('form');
+  const answerElement = document.getElementById('answer');
+  const resultElement = document.getElementById('result');
+  const danSelectElement = document.getElementById('dan-select');
+  const attemptsElement = document.getElementById('attempts');
+  const correctElement = document.getElementById('correct');
+
+  // 변수 초기화
+  let num1, num2, correctAnswer;
+  let attempts = 0;
+  let correctCount = 0;
+
+  // 새로운 문제를 생성하는 함수
+  function generateProblem() {
+    const selectedDan = danSelectElement.value;
+
+    if (selectedDan === 'random') {
+      // '전체 랜덤' 선택 시 2~9단 랜덤 선택
+      num1 = Math.floor(Math.random() * 8) + 2;
+    } else {
+      // 특정 단 선택 시 해당 단으로 고정
+      num1 = parseInt(selectedDan);
+    }
+    
+    // 곱하는 수는 1~9 랜덤
+    num2 = Math.ceil(Math.random() * 9);
+    correctAnswer = num1 * num2;
+
+    problemElement.textContent = `${num1} × ${num2} = ?`;
+    answerElement.value = '';
+    resultElement.textContent = '';
+    answerElement.focus();
+  }
+
+  // 점수를 초기화하고 새로운 문제를 생성하는 함수
+  function startNewGame() {
+    attempts = 0;
+    correctCount = 0;
+    attemptsElement.textContent = attempts;
+    correctElement.textContent = correctCount;
+    generateProblem();
+  }
+
+  // 정답 제출 이벤트 처리
+  formElement.addEventListener('submit', function(event) {
+    event.preventDefault();
+    const userAnswer = parseInt(answerElement.value, 10);
+
+    // 도전 횟수 증가 및 화면 업데이트
+    attempts++;
+    attemptsElement.textContent = attempts;
+
+    if (userAnswer === correctAnswer) {
+      // 정답일 경우
+      correctCount++;
+      correctElement.textContent = correctCount;
+      resultElement.textContent = '정답입니다! 🎉';
+      resultElement.style.color = 'green';
+      setTimeout(generateProblem, 1200); // 1.2초 후 새 문제
+    } else {
+      // 오답일 경우
+      resultElement.textContent = '틀렸습니다. 다시 시도해보세요.';
+      resultElement.style.color = 'red';
+      answerElement.value = '';
+      answerElement.focus();
+    }
+  });
+
+  // 구구단 선택 변경 시 점수를 리셋하고 새로운 게임 시작
+  danSelectElement.addEventListener('change', startNewGame);
+
+  // 페이지 로드 시 첫 문제 생성
+  startNewGame();
+</script>
+
+</body>
+</html>
